@@ -322,7 +322,9 @@ $suspiciousFiles = @(
     "hydrogen exploit", "macsploit exploit", "opiumware exploit",
     "delta exploit", "cryptic exploit", "vega x exploit", "codex exploit",
     "serotonin exploit", "severe exploit", "rbxcli exploit", "ronin exploit",
-    "matcha exploit", "matrix hub exploit", "photon exploit", "dx9ware exploit"
+    "matcha exploit", "matrix hub exploit", "photon exploit", "dx9ware exploit",
+    "kiciahook exploit", "kj exploit", "snaw exploit", "roblox dma exploit",
+    "ue v2 exploit", "ue2 exploit", "matrix config exploit"
 )
 
 $watchlist = @(
@@ -339,7 +341,9 @@ $watchlist = @(
     "HYDROGEN.EXE", "MACSPLOIT.EXE", "OPIUMWARE.EXE",
     "DELTA.EXE", "CRYPTIC.EXE", "VEGAX.EXE", "CODEX.EXE",
     "SEROTONIN.EXE", "SEVERE.EXE", "RBXCLI.EXE", "RONIN.EXE",
-    "MATCHA.EXE", "MATRIXHUB.EXE", "PHOTON.EXE", "DX9WARE.EXE"
+    "MATCHA.EXE", "MATRIXHUB.EXE", "PHOTON.EXE", "DX9WARE.EXE",
+    "KICIAHOOK.EXE", "KJ.EXE", "SNAW.EXE", "ROBLOXDMA.EXE",
+    "UEV2.EXE", "UE2.EXE", "MATRIXCONFIG.EXE"
 )
 
 $allSuspicious = $suspiciousFiles + $watchlist
@@ -692,7 +696,9 @@ $suspiciousCombined = @(
     "hydrogen exploit", "macsploit exploit", "opiumware exploit",
     "delta exploit", "cryptic exploit", "vega x exploit", "codex exploit",
     "serotonin exploit", "severe exploit", "rbxcli exploit", "ronin exploit",
-    "matcha exploit", "matrix hub exploit", "photon exploit", "dx9ware exploit"
+    "matcha exploit", "matrix hub exploit", "photon exploit", "dx9ware exploit",
+    "kiciahook exploit", "kj exploit", "snaw exploit", "roblox dma exploit",
+    "ue v2 exploit", "ue2 exploit", "matrix config exploit"
 )
 
 $registryPaths = @(
@@ -752,7 +758,9 @@ $suspiciousFiles2 = @(
     "hydrogen exploit", "macsploit exploit", "opiumware exploit",
     "delta exploit", "cryptic exploit", "vega x exploit", "codex exploit",
     "serotonin exploit", "severe exploit", "rbxcli exploit", "ronin exploit",
-    "matcha exploit", "matrix hub exploit", "photon exploit", "dx9ware exploit"
+    "matcha exploit", "matrix hub exploit", "photon exploit", "dx9ware exploit",
+    "kiciahook exploit", "kj exploit", "snaw exploit", "roblox dma exploit",
+    "ue v2 exploit", "ue2 exploit", "matrix config exploit"
 )
 
 $downloadsPath = [Environment]::GetFolderPath("UserProfile") + "\Downloads"
