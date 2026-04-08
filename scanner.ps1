@@ -209,6 +209,7 @@ $defenderOutput = @()
 $exclusionsOutput = @()
 $threatsOutput = @()
 $powershellSigOutput = @()
+$vmOutput = @()
 
 $defaultModules = @("Microsoft.PowerShell.Archive", "Microsoft.PowerShell.Diagnostics", "Microsoft.PowerShell.Host", "Microsoft.PowerShell.LocalAccounts", "Microsoft.PowerShell.Management", "Microsoft.PowerShell.Security", "Microsoft.PowerShell.Utility", "PackageManagement", "PowerShellGet", "PSReadLine", "Pester", "ThreadJob")
 $protectedModule = "Microsoft.PowerShell.Operation.Validation"
@@ -279,6 +280,77 @@ try {
     $powershellSigOutput += "WARNING: PowerShell signature check failed."
 }
 
+$vmIndicators = @()
+$vmKeywords = @("vmware", "virtualbox", "qemu", "parallels", "xen", "hyperv", "hyper-v", "bochs", "vbox", "virtual machine", "innotek", "microsoft corporation")
+
+try {
+    $cs = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
+    foreach ($kw in $vmKeywords) {
+        if ($cs.Manufacturer -imatch $kw -or $cs.Model -imatch $kw) {
+            $vmIndicators += "ComputerSystem: $($cs.Manufacturer) / $($cs.Model)"
+            break
+        }
+    }
+} catch {}
+
+try {
+    $bios = Get-CimInstance Win32_BIOS -ErrorAction Stop
+    foreach ($kw in $vmKeywords) {
+        if ($bios.Version -imatch $kw -or $bios.SMBIOSBIOSVersion -imatch $kw -or $bios.Manufacturer -imatch $kw) {
+            $vmIndicators += "BIOS: $($bios.SMBIOSBIOSVersion)"
+            break
+        }
+    }
+} catch {}
+
+try {
+    $gpu = Get-CimInstance Win32_VideoController -ErrorAction Stop
+    $vmGPUs = @("vmware svga", "virtualbox graphics", "microsoft basic display", "qemu video", "bochs video", "hyper-v video")
+    foreach ($g in $gpu) {
+        foreach ($vg in $vmGPUs) {
+            if ($g.Name -imatch $vg) {
+                $vmIndicators += "GPU: $($g.Name)"
+                break
+            }
+        }
+    }
+} catch {}
+
+$vmRegKeys = @(
+    "HKLM:\SOFTWARE\VMware, Inc.",
+    "HKLM:\SOFTWARE\Oracle\VirtualBox Guest Additions",
+    "HKLM:\SOFTWARE\Microsoft\Virtual Machine\Guest\Parameters",
+    "HKLM:\SOFTWARE\QEMU",
+    "HKLM:\HARDWARE\ACPI\DSDT\VBOX__"
+)
+foreach ($key in $vmRegKeys) {
+    if (Test-Path $key) {
+        $vmIndicators += "Registry: $key"
+        break
+    }
+}
+
+$vmProcesses = @("vmtoolsd", "vmwaretray", "vmwareuser", "vboxservice", "vboxtray", "vmsrvc", "vmusrvc", "qemu-ga", "prl_tools")
+try {
+    $procs = Get-Process -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ProcessName
+    foreach ($vp in $vmProcesses) {
+        if ($procs -icontains $vp) {
+            $vmIndicators += "Process: $vp"
+            break
+        }
+    }
+} catch {}
+
+if ($vmIndicators.Count -gt 0) {
+    $vmOutput += "FAILURE: Virtual Machine detected."
+    foreach ($indicator in $vmIndicators) {
+        $vmOutput += " -> $indicator"
+    }
+    $suspiciousFindings.Add([PSCustomObject]@{Type = "VirtualMachine"; Indicators = ($vmIndicators -join "; ")})
+} else {
+    $vmOutput += "SUCCESS: No virtual machine detected."
+}
+
 Write-Section "PowerShell Modules" $modulesOutput
 Write-Section "Operating System" $windowsOutput
 Write-Section "Memory Integrity" $memoryIntegrityOutput
@@ -286,8 +358,9 @@ Write-Section "Windows Defender" $defenderOutput
 Write-Section "Defender Exclusions" $exclusionsOutput
 Write-Section "Threat Detection" $threatsOutput
 Write-Section "PowerShell Signature" $powershellSigOutput
+Write-Section "Virtual Machine Check" $vmOutput
 
-$allResults1 = $modulesOutput + $windowsOutput + $memoryIntegrityOutput + $defenderOutput + $exclusionsOutput + $threatsOutput + $powershellSigOutput
+$allResults1 = $modulesOutput + $windowsOutput + $memoryIntegrityOutput + $defenderOutput + $exclusionsOutput + $threatsOutput + $powershellSigOutput + $vmOutput
 $total1 = ($allResults1 | Where-Object { $_ -match '^(SUCCESS|FAILURE|WARNING)' }).Count
 $success1 = ($allResults1 | Where-Object { $_ -match '^SUCCESS' }).Count
 Write-StepResult -Success $success1 -Total $total1 -StepNumber 1
